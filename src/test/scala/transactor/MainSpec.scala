@@ -3,7 +3,7 @@ package transactor
 import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, CoordinatedShutdown, Props}
 import org.scalatest.FlatSpec
 
 import scala.concurrent.Await
@@ -27,7 +27,7 @@ class MainSpec extends FlatSpec {
       actors = actors + (i -> s)
     }
 
-    val n = 400
+    val n = 1000
 
     for(i<-0 until n){
       val id = rand.nextInt(0, 900)
@@ -39,7 +39,11 @@ class MainSpec extends FlatSpec {
       }
     }
 
-    Await.ready(system.terminate(), 10 seconds)
+    //Await.ready(system.terminate(), 10 seconds)
+
+    val f = CoordinatedShutdown(system).run(CoordinatedShutdown.UnknownReason)
+
+    Await.ready(f, 10 seconds)
   }
 
 }

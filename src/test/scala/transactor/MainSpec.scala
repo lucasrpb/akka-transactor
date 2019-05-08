@@ -22,8 +22,8 @@ class MainSpec extends FlatSpec {
     import Global._
     var moneyBefore = Map.empty[String, Int]
 
-    for(i<-0 until 10){
-      val b = 1000//rand.nextInt(0, 100000)
+    for(i<-0 until 100){
+      val b = rand.nextInt(1000, 10000)
       accounts.put(i.toString, Account(b))
       moneyBefore = moneyBefore + (i.toString -> b)
     }
@@ -48,7 +48,7 @@ class MainSpec extends FlatSpec {
 
     tasks = tasks ++ Seq(c1, c2, c3)*/
 
-    for(i<-0 until 10){
+    for(i<-0 until 100){
       val a1 = rand.nextInt(0, accounts.size).toString
       val a2 = rand.nextInt(0, accounts.size).toString
 
@@ -57,7 +57,7 @@ class MainSpec extends FlatSpec {
         val c =  (system.actorOf(Props(classOf[Client], id, a1, a2)) ? Start()).mapTo[Boolean]
           .map { r =>
 
-            println(s"\nTX $id FINISHED => $r!\n")
+            println(s"\nTX $id FINISHED => $r!")
 
             r
           }
@@ -68,7 +68,7 @@ class MainSpec extends FlatSpec {
 
     val results = Await.result(Future.sequence(tasks), 5 seconds)
 
-    println(s"results: ${results}\n")
+    println(s"\nn: ${results.length} successes: ${results.count(_ == true)}\n")
 
     val mb = moneyBefore.map(_._2).sum
     val ma = accounts.map(_._2.balance).sum

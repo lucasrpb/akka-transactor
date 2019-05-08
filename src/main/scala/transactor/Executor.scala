@@ -46,7 +46,7 @@ class Executor(val id: String) extends Actor {
   }
 
   def release(cmd: transactor.Release): Unit = {
-    println(s"RELEASING...\n")
+    println(s"RELEASING...")
     running.remove(cmd.t.id)
 
     sender ! true

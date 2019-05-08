@@ -31,7 +31,7 @@ class Serializer(val id: String) extends Actor {
         if(!list.isEmpty) {
           val b = Batch(UUID.randomUUID.toString, list)
 
-          println(s"ADDING BATCH ${b.id}...\n")
+          println(s"ADDING BATCH ${b.id}...")
 
           partition.add(b)
         }

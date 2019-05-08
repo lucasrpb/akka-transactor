@@ -6,11 +6,14 @@ import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 import akka.pattern._
 
 import scala.concurrent.duration._
-import akka.actor.Actor
+import akka.actor.{Actor, Props}
 
 class Serializer(val id: String) extends Actor {
 
-  var queue = Seq.empty[Transaction]
+  var batch = Seq.empty[Transaction]
+  val partition = Queue.partitions(id)
+
+  val executor =  context.actorOf(Props(classOf[Executor], id), s"${id}")
 
   implicit val ec = context.dispatcher
 
@@ -21,19 +24,20 @@ class Serializer(val id: String) extends Actor {
   override def preStart(): Unit = {
     context.system.scheduler.schedule(100 milliseconds, 100 milliseconds){
       execute(() => {
-        val list = queue.sortBy(_.id)
 
-        println(s"executing in order at ${id}: ${list.map(_.id)}...\n")
+        val list = batch.sortBy(_.id)
+        batch = Seq.empty[Transaction]
 
-        queue = Seq.empty[Transaction]
+        partition.add(Batch(list))
+
+        executor ! Dequeue()
       })
     }
   }
 
   def enqueue(msg: transactor.Enqueue): Unit = {
     execute(() => {
-      queue = queue :+ msg.t
-      sender ! true
+      batch = batch :+ msg.t
     })
   }
 

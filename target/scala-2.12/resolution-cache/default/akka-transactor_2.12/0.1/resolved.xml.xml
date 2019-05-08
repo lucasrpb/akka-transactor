@@ -4,7 +4,7 @@
 		module="akka-transactor_2.12"
 		revision="0.1"
 		status="integration"
-		publication="20190426110403"
+		publication="20190506223909"
 	>
 		<description>
 		akka-transactor

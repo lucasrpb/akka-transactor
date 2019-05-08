@@ -30,24 +30,43 @@ class MainSpec extends FlatSpec {
 
     val system = ActorSystem("bank")
 
-    for(i<-0 until nactors){
-      val s = system.actorOf(Props(classOf[Serializer], i.toString), s"${i}")
+    for(i<-0 until 3){
+      val s = system.actorOf(Props(classOf[Serializer], i.toString), s"s-${i}")
+      val e = system.actorOf(Props(classOf[Executor], i.toString), s"e-${i}")
+
       actors.put(i.toString, s)
+      executors.put(i.toString, e)
     }
 
     implicit val timeout = Timeout(10 seconds)
 
     var tasks = Seq.empty[Future[Boolean]]
 
-    //val r = cli ? Start()
-
-    val c1 = (system.actorOf(Props(classOf[Client], UUID.randomUUID.toString, "0", "1")) ? Start()).mapTo[Boolean]
+    /*val c1 = (system.actorOf(Props(classOf[Client], UUID.randomUUID.toString, "0", "1")) ? Start()).mapTo[Boolean]
     val c2 = (system.actorOf(Props(classOf[Client], UUID.randomUUID.toString, "2", "3")) ? Start()).mapTo[Boolean]
     val c3 = (system.actorOf(Props(classOf[Client], UUID.randomUUID.toString, "3", "4")) ? Start()).mapTo[Boolean]
 
-    tasks = tasks ++ Seq(c1, c2, c3)
+    tasks = tasks ++ Seq(c1, c2, c3)*/
 
-    val results = Await.result(Future.sequence(tasks), 10 seconds)
+    for(i<-0 until 10){
+      val a1 = rand.nextInt(0, accounts.size).toString
+      val a2 = rand.nextInt(0, accounts.size).toString
+
+      if(!a1.equals(a2)) {
+        val id = i.toString//UUID.randomUUID.toString
+        val c =  (system.actorOf(Props(classOf[Client], id, a1, a2)) ? Start()).mapTo[Boolean]
+          .map { r =>
+
+            println(s"\nTX $id FINISHED => $r!\n")
+
+            r
+          }
+
+        tasks = tasks :+ c
+      }
+    }
+
+    val results = Await.result(Future.sequence(tasks), 5 seconds)
 
     println(s"results: ${results}\n")
 
@@ -64,7 +83,7 @@ class MainSpec extends FlatSpec {
 
     val f = CoordinatedShutdown(system).run(CoordinatedShutdown.UnknownReason)
 
-    Await.ready(f, 60 seconds)
+    Await.ready(f, 10 seconds)
   }
 
 }

@@ -4,6 +4,7 @@ import akka.actor.Actor
 import akka.pattern._
 
 import scala.collection.concurrent.TrieMap
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class Executor(val id: String) extends Actor {
@@ -27,6 +28,8 @@ class Executor(val id: String) extends Actor {
 
     if(batch == null) return
 
+    println(s"PROCESSING BATCH ${batch.id} txs: ${batch.txs.map(_.id)}...")
+
     var keys = Seq.empty[String]
 
     batch.txs.foreach { t =>
@@ -34,29 +37,32 @@ class Executor(val id: String) extends Actor {
         t.client ! AccessDenied(id)
       } else {
 
+        keys = keys ++ t.keys
         running.put(t.id, t)
 
-        keys = keys ++ t.keys
         t.client ! AccessGranted(id)
       }
     }
   }
 
   def release(cmd: transactor.Release): Unit = {
-    execute(() => {
-      running.remove(cmd.t.id)
-    })
+    println(s"RELEASING...\n")
+    running.remove(cmd.t.id)
+
+    sender ! true
   }
 
-  /*override def preStart(): Unit = {
+  override def preStart(): Unit = {
     context.system.scheduler.schedule(100 milliseconds, 100 milliseconds){
       execute(dequeue)
     }
-  }*/
+  }
 
   override def receive: Receive = {
-    case cmd: Dequeue => execute(dequeue)
-    case cmd: Release => release(cmd)
+    //case cmd: Dequeue => dequeue()
+    case cmd: Release => execute(() => {
+      release(cmd)
+    })
     case _ =>
   }
 }

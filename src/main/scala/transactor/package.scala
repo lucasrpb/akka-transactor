@@ -6,7 +6,7 @@ package object transactor {
 
   trait Message
 
-  case class Batch(txs: Seq[Transaction])
+  case class Batch(val id: String, txs: Seq[Transaction])
 
   case class Transaction(id: String, var keys: Seq[String], client: ActorRef,
                          tmp: Long = System.currentTimeMillis())

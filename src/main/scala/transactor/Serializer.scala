@@ -1,6 +1,7 @@
 package transactor
 
-import java.util.UUID
+import java.util
+import java.util.{Collections, UUID}
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 

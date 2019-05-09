@@ -38,7 +38,7 @@ class MainSpec extends FlatSpec {
       executors.put(i.toString, e)
     }
 
-    implicit val timeout = Timeout(10 seconds)
+    implicit val timeout = Timeout(5 seconds)
 
     var tasks = Seq.empty[Future[Boolean]]
 
@@ -73,9 +73,9 @@ class MainSpec extends FlatSpec {
     val mb = moneyBefore.map(_._2).sum
     val ma = accounts.map(_._2.balance).sum
 
-    moneyBefore.keys.toSeq.sorted.foreach { id =>
+    /*moneyBefore.keys.toSeq.sorted.foreach { id =>
       println(s"account $id before ${moneyBefore(id)} after ${accounts(id).balance}")
-    }
+    }*/
 
     println(s"before: ${ma} moneyAfter ${mb}\n")
 

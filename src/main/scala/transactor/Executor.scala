@@ -10,7 +10,8 @@ import scala.concurrent.duration._
 class Executor(val id: String) extends Actor {
 
   val partition = Queue.partitions(id)
-  var running = TrieMap[String, Transaction]()
+  val running = TrieMap[String, Transaction]()
+  var batch = Seq.empty[Transaction]
 
   implicit val ec = context.dispatcher
 
@@ -18,31 +19,41 @@ class Executor(val id: String) extends Actor {
     op()
   }
 
-  def dequeue(): Unit = {
+  def process(): Unit = {
+    var txs = Seq.empty[Transaction]
 
-    if(!running.isEmpty){
-      return
-    }
+    batch.foreach { t =>
 
-    val batch = partition.poll()
+      val keys = running.values.map(_.keys).flatten.toSeq
 
-    if(batch == null) return
-
-    println(s"PROCESSING BATCH ${batch.id} txs: ${batch.txs.map(_.id)}...")
-
-    var keys = Seq.empty[String]
-
-    batch.txs.foreach { t =>
-      if(t.keys.exists(k => keys.contains(k))){
-        t.client ! AccessDenied(id)
-      } else {
-
-        keys = keys ++ t.keys
+      if(!t.keys.exists(k => keys.contains(k))){
         running.put(t.id, t)
-
-        t.client ! AccessGranted(id)
+        txs = txs :+ t
       }
     }
+
+    batch = batch.filterNot(t => txs.exists(_.id.equals(t.id)))
+
+    txs.foreach(_.client ! AccessGranted(id))
+
+    println(s"batch ${batch.map(_.id)} size ${batch.size}\n")
+  }
+
+  def dequeue(): Unit = {
+
+    /*if(!running.isEmpty){
+      return
+    }*/
+
+    if(batch.isEmpty){
+      val b = partition.poll()
+
+      if(b == null) return
+
+      batch = b.txs
+    }
+
+    process()
   }
 
   def release(cmd: transactor.Release): Unit = {

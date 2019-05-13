@@ -36,6 +36,7 @@ class Serializer(val id: String) extends Actor {
 
           partition.add(b)
         }
+
       })
     }
   }

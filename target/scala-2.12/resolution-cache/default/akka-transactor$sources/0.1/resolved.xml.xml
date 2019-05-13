@@ -4,7 +4,7 @@
 		module="akka-transactor$sources"
 		revision="0.1"
 		status="integration"
-		publication="20190508173800"
+		publication="20190513152443"
 	/>
 	<configurations>
 		<conf name="compile" visibility="public" description=""/>

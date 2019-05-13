@@ -9,7 +9,7 @@ object Global {
   case class Account(var balance: Int = 0)
 
   val accounts = TrieMap[String, Account]()
-  val actors = TrieMap[String, ActorRef]()
+  val sequencers = TrieMap[String, ActorRef]()
   val executors = TrieMap[String, ActorRef]()
 
 }

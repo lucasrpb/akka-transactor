@@ -34,7 +34,7 @@ class MainSpec extends FlatSpec {
       val s = system.actorOf(Props(classOf[Serializer], i.toString), s"s-${i}")
       val e = system.actorOf(Props(classOf[Executor], i.toString), s"e-${i}")
 
-      actors.put(i.toString, s)
+      sequencers.put(i.toString, s)
       executors.put(i.toString, e)
     }
 

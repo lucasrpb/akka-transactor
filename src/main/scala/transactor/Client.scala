@@ -62,7 +62,7 @@ class Client(val id: String, a1: String, a2: String) extends Actor {
     println(s"tx ${id} keys ${keys}")
 
     keys.foreach { k =>
-      val p = (k.toInt % actors.size).toString
+      val p = (k.toInt % sequencers.size).toString
 
       if(partitions.isDefinedAt(p)){
         val t = partitions(p)
@@ -75,7 +75,7 @@ class Client(val id: String, a1: String, a2: String) extends Actor {
     //println(s"partitions for tx $id ${partitions.map(_._1)}\n")
 
     partitions.foreach { case (p, t) =>
-      actors(p) ! Enqueue(t)
+      sequencers(p) ! Enqueue(t)
     }
   }
 

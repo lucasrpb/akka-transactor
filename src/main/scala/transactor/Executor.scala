@@ -1,5 +1,8 @@
 package transactor
 
+import java.util.Comparator
+import java.util.function.Consumer
+
 import akka.actor.Actor
 import akka.pattern._
 
@@ -19,41 +22,31 @@ class Executor(val id: String) extends Actor {
     op()
   }
 
-  def process(): Unit = {
-    var txs = Seq.empty[Transaction]
-
-    batch.foreach { t =>
-
-      val keys = running.values.map(_.keys).flatten.toSeq
-
-      if(!t.keys.exists(k => keys.contains(k))){
-        running.put(t.id, t)
-        txs = txs :+ t
-      }
-    }
-
-    batch = batch.filterNot(t => txs.exists(_.id.equals(t.id)))
-
-    txs.foreach(_.client ! AccessGranted(id))
-
-    println(s"batch ${batch.map(_.id)} size ${batch.size}\n")
-  }
-
   def dequeue(): Unit = {
 
-    /*if(!running.isEmpty){
+    if(!running.isEmpty){
       return
-    }*/
-
-    if(batch.isEmpty){
-      val b = partition.poll()
-
-      if(b == null) return
-
-      batch = b.txs
     }
 
-    process()
+    val batch = partition.poll()
+
+    if(batch == null) return
+
+    println(s"PROCESSING BATCH ${batch.id} txs: ${batch.txs.map(_.id)}...")
+
+    var keys = Seq.empty[String]
+
+    batch.txs.foreach { t =>
+      if(t.keys.exists(k => keys.contains(k))){
+        t.client ! AccessDenied(id)
+      } else {
+
+        keys = keys ++ t.keys
+        running.put(t.id, t)
+
+        t.client ! AccessGranted(id)
+      }
+    }
   }
 
   def release(cmd: transactor.Release): Unit = {

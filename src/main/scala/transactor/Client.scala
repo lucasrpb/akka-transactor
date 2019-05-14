@@ -59,7 +59,7 @@ class Client(val id: String, a1: String, a2: String) extends Actor {
 
     val keys = Seq(a1, a2)
 
-    println(s"tx ${id} keys ${keys}")
+    //println(s"tx ${id} keys ${keys}")
 
     keys.foreach { k =>
       val p = (k.toInt % sequencers.size).toString

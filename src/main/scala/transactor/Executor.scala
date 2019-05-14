@@ -36,7 +36,7 @@ class Executor(val id: String) extends Actor {
 
     var keys = Seq.empty[String]
 
-    batch.txs.foreach { t =>
+    batch.txs.sortBy(_.id).foreach { t =>
       if(t.keys.exists(k => keys.contains(k))){
         t.client ! AccessDenied(id)
       } else {

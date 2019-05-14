@@ -26,16 +26,17 @@ class Serializer(val id: String) extends Actor {
     context.system.scheduler.schedule(100 milliseconds, 100 milliseconds){
       execute(() => {
 
-        val list = batch.sortBy(_.id)
-        batch = Seq.empty[Transaction]
+        //val list = batch.sortBy(_.id)
 
-        if(!list.isEmpty) {
-          val b = Batch(UUID.randomUUID.toString, list)
+        if(!batch.isEmpty) {
+          val b = Batch(UUID.randomUUID.toString, batch)
 
           println(s"ADDING BATCH ${b.id}...")
 
           partition.add(b)
         }
+
+        batch = Seq.empty[Transaction]
 
       })
     }

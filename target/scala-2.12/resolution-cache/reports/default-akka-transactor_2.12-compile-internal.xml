@@ -7,15 +7,15 @@
 		revision="0.1"
 		conf="compile-internal"
 		confs="compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, pom, scala-tool"
-		date="20190506223909"/>
+		date="20190514083057"/>
 	<dependencies>
 		<module organisation="com.typesafe.akka" name="akka-actor_2.12">
-			<revision name="2.5.22" status="release" pubdate="20190403050609" resolver="public" artresolver="public" homepage="https://akka.io/" extra-info.apiURL="https://doc.akka.io/api/akka/2.5.22" downloaded="true" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="12">
+			<revision name="2.5.22" status="release" pubdate="20190403050609" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://akka.io/" extra-info.apiURL="https://doc.akka.io/api/akka/2.5.22" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="12">
 				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
-				<metadata-artifact status="successful" details="" size="2353" time="1026" location="/Volumes/Users/lucasrpb/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/ivy-2.5.22.xml" searched="true" original-local-location="/Volumes/Users/lucasrpb/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/ivy-2.5.22.xml.original" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.12/2.5.22/akka-actor_2.12-2.5.22.pom"/>
+				<metadata-artifact status="no" details="" size="3260" time="0" location="/Volumes/Users/lucasrpb/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/ivy-2.5.22.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.12/2.5.22/akka-actor_2.12-2.5.22.pom"/>
 				<caller organisation="default" name="akka-transactor_2.12" conf="compile-internal, compile, provided, optional" rev="2.5.22" rev-constraint-default="2.5.22" rev-constraint-dynamic="2.5.22" callerrev="0.1"/>
 				<artifacts>
-					<artifact name="akka-actor_2.12" type="jar" ext="jar" status="successful" details="" size="3519170" time="3885" location="/Volumes/Users/lucasrpb/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/jars/akka-actor_2.12-2.5.22.jar">
+					<artifact name="akka-actor_2.12" type="jar" ext="jar" status="no" details="" size="3519170" time="0" location="/Volumes/Users/lucasrpb/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/jars/akka-actor_2.12-2.5.22.jar">
 						<origin-location is-local="false" location="https://repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.12/2.5.22/akka-actor_2.12-2.5.22.jar"/>
 					</artifact>
 				</artifacts>

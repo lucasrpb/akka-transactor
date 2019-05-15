@@ -2,6 +2,8 @@ import akka.actor.ActorRef
 
 package object transactor {
 
+  val TIMEOUT = 300
+
   trait Command
 
   trait Message

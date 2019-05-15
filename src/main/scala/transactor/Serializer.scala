@@ -23,10 +23,8 @@ class Serializer(val id: String) extends Actor {
   }
 
   override def preStart(): Unit = {
-    context.system.scheduler.schedule(100 milliseconds, 100 milliseconds){
+    context.system.scheduler.schedule(10 milliseconds, 10 milliseconds){
       execute(() => {
-
-        //val list = batch.sortBy(_.id)
 
         if(!batch.isEmpty) {
           val b = Batch(UUID.randomUUID.toString, batch)
@@ -37,7 +35,6 @@ class Serializer(val id: String) extends Actor {
         }
 
         batch = Seq.empty[Transaction]
-
       })
     }
   }

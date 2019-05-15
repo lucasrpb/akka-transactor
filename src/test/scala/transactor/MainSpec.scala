@@ -38,7 +38,7 @@ class MainSpec extends FlatSpec {
       executors.put(i.toString, e)
     }
 
-    implicit val timeout = Timeout(5 seconds)
+    implicit val timeout = Timeout(TIMEOUT milliseconds)
 
     var tasks = Seq.empty[Future[Boolean]]
 
@@ -54,13 +54,14 @@ class MainSpec extends FlatSpec {
 
       if(!a1.equals(a2)) {
         val id = i.toString//UUID.randomUUID.toString
+        val t0 = System.currentTimeMillis()
         val c =  (system.actorOf(Props(classOf[Client], id, a1, a2)) ? Start()).mapTo[Boolean]
           .map { r =>
 
-            println(s"\nTX $id FINISHED => $r!")
+            println(s"\nTX $id FINISHED => $r! elapsed ${System.currentTimeMillis() - t0}ms")
 
             r
-          }
+          }.recover {case _ => false}
 
         tasks = tasks :+ c
       }

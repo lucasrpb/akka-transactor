@@ -36,8 +36,13 @@ class Executor(val id: String) extends Actor {
 
     var keys = Seq.empty[String]
 
+    val now = System.currentTimeMillis()
+
     batch.txs.sortBy(_.id).foreach { t =>
-      if(t.keys.exists(k => keys.contains(k))){
+
+      val elapsed = now - t.tmp
+
+      if(t.keys.exists(k => keys.contains(k)) && elapsed < TIMEOUT){
         t.client ! AccessDenied(id)
       } else {
 
@@ -57,7 +62,7 @@ class Executor(val id: String) extends Actor {
   }
 
   override def preStart(): Unit = {
-    context.system.scheduler.schedule(100 milliseconds, 100 milliseconds){
+    context.system.scheduler.schedule(10 milliseconds, 10 milliseconds){
       execute(dequeue)
     }
   }

@@ -103,7 +103,7 @@ class MainSpec extends FlatSpec {
         }
     }
 
-    for(i<-0 until 100){
+    for(i<-0 until 1000){
       val a1 = rand.nextInt(0, accounts.size).toString
       val a2 = rand.nextInt(0, accounts.size).toString
 

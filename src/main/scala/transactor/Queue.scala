@@ -7,10 +7,13 @@ import scala.collection.concurrent.TrieMap
 
 object Queue {
 
-  val partitions = TrieMap[String, ConcurrentLinkedDeque[Batch]](
-    "0" -> new ConcurrentLinkedDeque[Batch],
-    "1" -> new ConcurrentLinkedDeque[Batch],
-    "2" -> new ConcurrentLinkedDeque[Batch]
+  val partitions = TrieMap[String, ConcurrentLinkedDeque[Transaction]](
+    "0" -> new ConcurrentLinkedDeque[Transaction],
+    "1" -> new ConcurrentLinkedDeque[Transaction],
+    "2" -> new ConcurrentLinkedDeque[Transaction],
+    "3" -> new ConcurrentLinkedDeque[Transaction],
+    "4" -> new ConcurrentLinkedDeque[Transaction],
+    "5" -> new ConcurrentLinkedDeque[Transaction],
   )
 
 }

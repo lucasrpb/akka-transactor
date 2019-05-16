@@ -31,45 +31,94 @@ class MainSpec extends FlatSpec {
     val system = ActorSystem("bank")
 
     for(i<-0 until 3){
-      val s = system.actorOf(Props(classOf[Serializer], i.toString), s"s-${i}")
-      val e = system.actorOf(Props(classOf[Executor], i.toString), s"e-${i}")
+      val s = system.actorOf(Props(classOf[Sequencer], i.toString), s"s-${i}")
+      //val e = system.actorOf(Props(classOf[Executor], i.toString), s"e-${i}")
 
       sequencers.put(i.toString, s)
-      executors.put(i.toString, e)
+      //executors.put(i.toString, e)
     }
 
     implicit val timeout = Timeout(TIMEOUT milliseconds)
 
     var tasks = Seq.empty[Future[Boolean]]
 
-    /*val c1 = (system.actorOf(Props(classOf[Client], UUID.randomUUID.toString, "0", "1")) ? Start()).mapTo[Boolean]
-    val c2 = (system.actorOf(Props(classOf[Client], UUID.randomUUID.toString, "2", "3")) ? Start()).mapTo[Boolean]
-    val c3 = (system.actorOf(Props(classOf[Client], UUID.randomUUID.toString, "3", "4")) ? Start()).mapTo[Boolean]
+    def transfer(i: Int, a1: String, a2: String): Future[Boolean] = {
+      val id = i.toString//UUID.randomUUID.toString
+      val tmp = System.currentTimeMillis()
 
-    tasks = tasks ++ Seq(c1, c2, c3)*/
+      val acc1 = accounts(a1)
+      val acc2 = accounts(a2)
+
+      val keys = Seq(a1, a2)
+      var partitions = Map.empty[String, Transaction]
+
+      keys.foreach { k =>
+        val p = (k.toInt % sequencers.size).toString
+
+        if(partitions.isDefinedAt(p)){
+          val t = partitions(p)
+          t.keys = t.keys :+ k
+        } else {
+          partitions = partitions + (p -> Transaction(id, Seq(k), tmp))
+        }
+      }
+
+      val locks = partitions.map { case (p, t) =>
+        sequencers(p) ? Enqueue(t)
+      }.map(_.mapTo[Boolean])
+
+      Future.sequence(locks).map { results =>
+
+        if(results.exists(_ == false)){
+          false
+        } else {
+
+          var b1 = acc1.balance
+          var b2 = acc2.balance
+
+          if(b1 == 0) {
+            println(s"no money to transfer")
+          } else {
+            val ammount = rand.nextInt(0, b1)
+
+            b1 = b1 - ammount
+            b2 = b2 + ammount
+
+            acc1.balance = b1
+            acc2.balance = b2
+          }
+
+          true
+        }
+      }.recover{case _ => false}
+        .map { r =>
+
+          partitions.foreach { case (p, t) =>
+            sequencers(p) ! Release(t)
+          }
+
+          println(s"\nTX DONE ${id} => ${r}")
+
+          r
+        }
+    }
 
     for(i<-0 until 100){
       val a1 = rand.nextInt(0, accounts.size).toString
       val a2 = rand.nextInt(0, accounts.size).toString
 
       if(!a1.equals(a2)) {
-        val id = i.toString//UUID.randomUUID.toString
-        val t0 = System.currentTimeMillis()
-        val c =  (system.actorOf(Props(classOf[Client], id, a1, a2)) ? Start()).mapTo[Boolean]
-          .map { r =>
-
-            println(s"\nTX $id FINISHED => $r! elapsed ${System.currentTimeMillis() - t0}ms")
-
-            r
-          }.recover {case _ => false}
-
-        tasks = tasks :+ c
+        tasks = tasks :+ transfer(i, a1, a2)
       }
     }
 
     val results = Await.result(Future.sequence(tasks), 5 seconds)
 
-    println(s"\nn: ${results.length} successes: ${results.count(_ == true)}\n")
+    val n = results.length
+    val hits = results.count(_ == true)
+    val rate = (hits/n.toDouble)*100
+
+    println(s"\nn: ${n} successes: ${hits} rate: ${rate}%\n")
 
     val mb = moneyBefore.map(_._2).sum
     val ma = accounts.map(_._2.balance).sum
@@ -78,7 +127,7 @@ class MainSpec extends FlatSpec {
       println(s"account $id before ${moneyBefore(id)} after ${accounts(id).balance}")
     }*/
 
-    println(s"before: ${ma} moneyAfter ${mb}\n")
+    println(s"before: ${ma} after ${mb}\n")
 
     assert(ma == mb)
 

@@ -1,8 +1,10 @@
 import akka.actor.ActorRef
 
+import scala.concurrent.Promise
+
 package object transactor {
 
-  val TIMEOUT = 300
+  val TIMEOUT = 150
 
   trait Command
 
@@ -10,8 +12,9 @@ package object transactor {
 
   case class Batch(val id: String, txs: Seq[Transaction])
 
-  case class Transaction(id: String, var keys: Seq[String], client: ActorRef,
-                         tmp: Long = System.currentTimeMillis())
+  case class Transaction(id: String, var keys: Seq[String],
+                         tmp: Long = System.currentTimeMillis(),
+                         p: Promise[Boolean] = Promise[Boolean]())
 
   case class Enqueue(t: Transaction) extends Message
 
